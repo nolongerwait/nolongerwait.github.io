@@ -2166,7 +2166,7 @@ ul.breadcrumb li + li:last-child {
   }
 }
 .content-wrap {
-  background: #fff;
+  /*background: #fff;*/
   border-radius: initial;
   box-shadow: initial;
   box-sizing: border-box;
