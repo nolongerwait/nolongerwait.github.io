@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="秦简" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="近年来，我们了解到，与您，我们亲爱的用户，分享关于Visual Studio的进步可以尽快和频繁地帮助我们为社区提供最佳的体验。我们激动地在今天分享一下作为Visual Studio 2019进一步发展的一部分：我们将把Visual Studio的主题焕然一新并更新产品的图标和启动界面——以便于让您更快的启动您的代码。接下来我将带领你们知晓我们在这些改变背后的想法，并展示您即将日常接触到的用户体验">
+<meta name="keywords" content="Microsoft,Visual Studio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Visual Studio 2019中UX和UI的变化预览">
+<meta property="og:url" content="http:&#x2F;&#x2F;nolongerwait.github.io&#x2F;2018&#x2F;11&#x2F;19&#x2F;Visual-Studio-2019%E4%B8%ADUX%E5%92%8CUI%E7%9A%84%E5%8F%98%E5%8C%96%E9%A2%84%E8%A7%88&#x2F;index.html">
+<meta property="og:site_name" content="秦简">
+<meta property="og:description" content="近年来，我们了解到，与您，我们亲爱的用户，分享关于Visual Studio的进步可以尽快和频繁地帮助我们为社区提供最佳的体验。我们激动地在今天分享一下作为Visual Studio 2019进一步发展的一部分：我们将把Visual Studio的主题焕然一新并更新产品的图标和启动界面——以便于让您更快的启动您的代码。接下来我将带领你们知晓我们在这些改变背后的想法，并展示您即将日常接触到的用户体验">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;new-old-vs-win-icons-1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;new-vs-icon-taskbar.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;new-vs-win-preview-icon.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;command-bar-all.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;Visual-Studo-theme-comparison.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;Visual-Studio-command-shelf-comparison.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;msdnshared.blob.core.windows.net&#x2F;media&#x2F;2018&#x2F;11&#x2F;Notifications_1.png">
+<meta property="og:updated_time" content="2019-11-08T12:38:01.865Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;devblogs.microsoft.com&#x2F;visualstudio&#x2F;wp-content&#x2F;uploads&#x2F;sites&#x2F;4&#x2F;2018&#x2F;11&#x2F;new-old-vs-win-icons-1.png">
+
+<link rel="canonical" href="http://nolongerwait.github.io/2018/11/19/Visual-Studio-2019%E4%B8%ADUX%E5%92%8CUI%E7%9A%84%E5%8F%98%E5%8C%96%E9%A2%84%E8%A7%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Visual Studio 2019中UX和UI的变化预览 | 秦简</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">秦简</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">山河永寂，人间长情</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://nolongerwait.github.io/2018/11/19/Visual-Studio-2019%E4%B8%ADUX%E5%92%8CUI%E7%9A%84%E5%8F%98%E5%8C%96%E9%A2%84%E8%A7%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/psb.png">
+      <meta itemprop="name" content="终古We1Kin">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秦简">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Visual Studio 2019中UX和UI的变化预览
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-11-19 06:09:00" itemprop="dateCreated datePublished" datetime="2018-11-19T06:09:00+00:00">2018-11-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-11-08 12:38:01" itemprop="dateModified" datetime="2019-11-08T12:38:01+00:00">2019-11-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Visual-Studio/" itemprop="url" rel="index">
+                    <span itemprop="name">Visual Studio</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>近年来，我们了解到，与您，我们亲爱的用户，分享关于Visual Studio的进步可以尽快和频繁地帮助我们为社区提供最佳的体验。我们激动地在今天分享一下作为Visual Studio 2019进一步发展的一部分：我们将把Visual Studio的主题焕然一新并更新产品的图标和启动界面——以便于让您更快的启动您的代码。接下来我将带领你们知晓我们在这些改变背后的想法，并展示您即将日常接触到的用户体验。</p>
+<h2 id="新的Visual-Studio图标"><a href="#新的Visual-Studio图标" class="headerlink" title="新的Visual Studio图标"></a>新的Visual Studio图标</h2><p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/new-old-vs-win-icons-1.png" alt="Visual Studio 2017 图标（左）和新的Visual Studio 2019图标（右）"><br>【Visual Studio 2017 图标（左）和新的Visual Studio 2019图标（右）】</p>
+<p>您也许已经注意到了，首要的改变就是我们给Visual Studio换了新的图标。我们一直致力于为发布的每一版Visual Studio去改善它的图标，这样您就可以快速的辨识出您正在使用的哪个版本。我们在Visual Studio 2017版本的早期就已经关注到了一些产品的可用性和图标风格问题，所以我们专注于在Visual Studio 2019中处理它们。</p>
+<p>有一个现象是，现有的图标使得它在有相似背景下或变得几乎不可见。因此，我们通过Fluent Design System的方式来给它进行加深、提亮和材质化。新的图标我们已经在视觉上进行了强化，让它能够在不同背景下都可以清晰明显的辨认。</p>
+<p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/new-vs-icon-taskbar.png" alt="在任务栏和开始菜单中的新Visual Studio 2019图标"><br>【在任务栏和开始菜单中的新Visual Studio 2019图标】</p>
+<p>我们一直在了解Visual Studio的Logo可能出现在哪些新的情况和环境下。故而我们一直改善它的易读性。减少它在相似颜色背景下Logo消失的可能性。</p>
+<p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/new-vs-win-preview-icon.png" alt="Visual Studio 2019发布版图标（左）和预览图标（右）"><br>【Visual Studio 2019发布版图标（左）和预览图标（右）】</p>
+<p>我们面对的另一个挑战则是Visual Studio预览版和最终RTM版本的差异。Visual Studio的图标一直是我们传递这种差异的明显的途径，但是在2017版本中这很困难。对于Visual Studio 2017来说，我们给Visual Studio 2017设计的图标是让它作为Visual Studio家族中的一个部分。我们所使用的方法是所有的图标有一个对齐的右侧“ribbon功能区”。但是，这为区别和辨识这些APP的图标留下了更少的空间。</p>
+<p>而对于Visual Studio 2019，我们着手去掉了图标中的其余部分，我们希望能够专注于Visual Studio Logo中最容易识别的元素：即“无限循环”。</p>
+<p>我们放大了“无限循环”的尺寸，这给我们提供了更多的空间和机会去展示发布版和预览版图标间的差异。我们现在采用了一个很大胆的设计方式来代表预览版：在几个地方打破图标形状，但整体上依旧保持Visual Studio图标的形状。与此同时我们也展示这个预览图标用于表示一个成品预览版（尚未准备就绪的）与正式发布版明显而清晰的差异。</p>
+<p>我们也用相同的方式在为新的Visual Studio for Mac做了修改，您可以在即将发布的预览版上见到它。</p>
+<h2 id="更容易运行您的代码"><a href="#更容易运行您的代码" class="headerlink" title="更容易运行您的代码"></a>更容易运行您的代码</h2><p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/command-bar-all.png" alt="Visual Studio for Mac的开始菜单和Visual Studio的启动页面"><br>【Visual Studio for Mac的开始菜单和Visual Studio的启动页面】</p>
+<p>我们也通过一些研究和观察确信我们有这样一个机会去简化用户们在启动vs时候所要做出的选项。我们意识到移除一些使用中所谓的“off-ramps”可以提供更佳地直接启动代码的途径。</p>
+<p>无论您是一个Visual Studio新用户还是一个资历丰富的Visual Studio开发者，这个新的启动界面都能够给您更快的方式去让开发者获取他们的常用的代码，包括克隆或者审阅代码，打开一个项目或者解决方案，打开PC上的本地文件或是创建新的项目。</p>
+<p>我们知道对您来说现在的Visual Studio 2017 IDE 中启动页的最近项目列表有多么重要（90%的用户们都在使用启动页和最近的项目列表）。作为用户体验中的焦点，我们确保会保留它的位置。</p>
+<p>您也可以使用全新的、简化的Git-First工作流程，只需要点击几下就可以将公共Git的repos克隆到本地。</p>
+<p>最后，我们也重新想象了一下创建一个新项目的用户体验，包括新的项目模板列表以及改善文件仓库。使用新的设计和步步引导去选择模板并配置项目，我们相信让这个过程不在让人感到无所适从，这样您就可以关注于每次的单个决定。您也能够在配置页中探寻其他语言、平台和VS支持的项目类别，最终正确地安装他们。</p>
+<h2 id="一个焕新的蓝色主题"><a href="#一个焕新的蓝色主题" class="headerlink" title="一个焕新的蓝色主题"></a>一个焕新的蓝色主题</h2><p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/Visual-Studo-theme-comparison.png" alt="焕新的蓝色主题（左）和现在的蓝色主题（右）"><br>【焕新的蓝色主题（左）和现在的蓝色主题（右）】</p>
+<p>当您使用Visual Studio 2019时候您能够很明显注意到的改变是我们更新了蓝色主题。超过半数的用户都在使用蓝色主题，但是自从Visual Studio 2012版本以来都没有什么变化。我们围绕着让UI进行一次蜕变的愿望来专注于我们产品的改变。通过柔化图标按钮和工具栏（包含工具窗口）周围的边框，我们让您能够更直接的关注您正在解决的项目和工程。我们在整体UI上做了一些小的改动，这使得界面更加简洁但是同时又符合我们的设计标准。我们用蓝色主题来启动VS以便于我们能够把这些改动带到您的面前，希望能够了解到您的反馈然后我们将把它应用于其他主题上。</p>
+<h2 id="触手可及的生产力"><a href="#触手可及的生产力" class="headerlink" title="触手可及的生产力"></a>触手可及的生产力</h2><p><img src="https://devblogs.microsoft.com/visualstudio/wp-content/uploads/sites/4/2018/11/Visual-Studio-command-shelf-comparison.png" alt="现在的命令空间（上）和Visual Studio 2019简化版本（下）"><br>【现在的命令空间（上）和Visual Studio 2019简化版本（下）】</p>
+<p>为了寻求扩充代码的展示空间并减少冗余，我们在顶部采用了横向的展开方式。通过移除标题栏，我们有机会无需大幅更改工作流程就可以重新评估vs的顶部布局。我们也移除了搜索栏去增加代码的可覆盖空间。在即将到来的更新中，您可以发现2019中的搜索工具更加的好用和准确。</p>
+<p>现在，我们也关注标题栏中的Live Share团队协作部件。现在只要团队都登录他们的Visual Studio账户，您就可以更直观的看到您正在与哪些人合作。它现在内置于所有的Visual Studio版本中。我们也花费了一些时间去清理默认图标，以便于更好的和Windows对应。</p>
+<p>这些细小的改动让我们能够回收一部分IDE的界面空间，也给更大的工具窗口、更大的代码空间、留下的可能，也能让您更快的访问你需要的工具或者命令。</p>
+<h2 id="更易注意到的通知"><a href="#更易注意到的通知" class="headerlink" title="更易注意到的通知"></a>更易注意到的通知</h2><p><img src="https://msdnshared.blob.core.windows.net/media/2018/11/Notifications_1.png" alt="image"><br>明年年初，我们在预览版中将包含一个对通知UI的更新。通过社区对话，我们了解到现在的通知的位置、图标和状态都不够清晰明确。为了解决这个问题，我们将通知的入口移动到了IDE的底部的状态栏上了。新的位置避免了破坏现有的界面进而干扰用户的注意力，也让我们在未来也能够显示来自不同服务（Live Share的状态或者Pull Request comment）的消息。根据你们在社区的反馈，我们也考虑未来将通知的图标从旗帜改为铃铛。</p>
+<h2 id="仍在进行的对话"><a href="#仍在进行的对话" class="headerlink" title="仍在进行的对话"></a>仍在进行的对话</h2><p>我们很高兴与您分享我们一直以来的努力改进的变化，也很乐意听取您对我们新设计的看法。您可以在我们的<a href="https://developercommunity.visualstudio.com/" target="_blank" rel="noopener">开发人员社区</a>中提交您的建议和反馈。我们希望每次更新都使Visual Studio变得更好，您的反馈至关重要。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Microsoft/" rel="tag"># Microsoft</a>
+              <a href="/tags/Visual-Studio/" rel="tag"># Visual Studio</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/04/08/%E5%BE%AE%E8%BD%AF2017%E5%B9%B4%E9%A2%84%E7%A7%91%E7%94%9F%E8%AE%A1%E5%88%92%E5%9C%A8%E7%BA%BF%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AF%95-%E7%AC%AC2%E9%A2%98-Tree-Restoration/" rel="next" title="微软2017年预科生计划在线编程笔试 第2题 Tree Restoration">
+                  <i class="fa fa-chevron-left"></i> 微软2017年预科生计划在线编程笔试 第2题 Tree Restoration
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/" rel="prev" title="微软Windows hello和无密码登陆技术的工作原理概述">
+                  微软Windows hello和无密码登陆技术的工作原理概述 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#新的Visual-Studio图标"><span class="nav-number">1.</span> <span class="nav-text">新的Visual Studio图标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更容易运行您的代码"><span class="nav-number">2.</span> <span class="nav-text">更容易运行您的代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个焕新的蓝色主题"><span class="nav-number">3.</span> <span class="nav-text">一个焕新的蓝色主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#触手可及的生产力"><span class="nav-number">4.</span> <span class="nav-text">触手可及的生产力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更易注意到的通知"><span class="nav-number">5.</span> <span class="nav-text">更易注意到的通知</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仍在进行的对话"><span class="nav-number">6.</span> <span class="nav-text">仍在进行的对话</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="终古We1Kin"
+    src="/images/psb.png">
+  <p class="site-author-name" itemprop="name">终古We1Kin</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nolongerwait" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nolongerwait" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/mailto:skyxiaoyaoyou@gmail.com" title="E-Mail &amp;rarr; mailto:skyxiaoyaoyou@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">终古We1Kin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
