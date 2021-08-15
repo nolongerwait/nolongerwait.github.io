@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nolongerwait.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="关于FIDO2，CTAP2和WebAuthn 在Identity Standards工作的这一周是十分荣幸的，因为我们在微软庆祝我们发布第一个WebAuthn依赖方。这一依赖方（Relying Partiy）在Xbox，Skype和Outlook.com等基础上都实现了标准化的无密码身份验证。但是什么是这次实现中难点的真实部分？他们又是怎么适配的？请继续阅读，了解W3C WebAuthn是如何与F">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微软Windows hello和无密码登陆技术的工作原理概述">
+<meta property="og:url" content="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="秦简">
+<meta property="og:description" content="关于FIDO2，CTAP2和WebAuthn 在Identity Standards工作的这一周是十分荣幸的，因为我们在微软庆祝我们发布第一个WebAuthn依赖方。这一依赖方（Relying Partiy）在Xbox，Skype和Outlook.com等基础上都实现了标准化的无密码身份验证。但是什么是这次实现中难点的真实部分？他们又是怎么适配的？请继续阅读，了解W3C WebAuthn是如何与F">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/FIDO2-Overview.png">
+<meta property="og:image" content="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/FIDO2-Overview-MSFTversion.png">
+<meta property="article:published_time" content="2018-11-22T08:28:12.000Z">
+<meta property="article:modified_time" content="2021-08-15T08:56:21.446Z">
+<meta property="article:author" content="终古WelKin">
+<meta property="article:tag" content="Microsoft">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/FIDO2-Overview.png">
+
+<link rel="canonical" href="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>微软Windows hello和无密码登陆技术的工作原理概述 | 秦简</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">秦简</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">山河永寂，人间长情</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://nolongerwait.com/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="终古WelKin">
+      <meta itemprop="description" content="点墨间 云山里 逍遥游">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="秦简">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          微软Windows hello和无密码登陆技术的工作原理概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-11-22 16:28:12" itemprop="dateCreated datePublished" datetime="2018-11-22T16:28:12+08:00">2018-11-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-15 16:56:21" itemprop="dateModified" datetime="2021-08-15T16:56:21+08:00">2021-08-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Translation/" itemprop="url" rel="index"><span itemprop="name">Translation</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>关于FIDO2，CTAP2和WebAuthn</strong></p>
+<p>在Identity Standards工作的这一周是十分荣幸的，因为我们在微软<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/microsoft-365/blog/2018/11/20/sign-in-to-your-microsoft-account-without-a-password-using-windows-hello-or-a-security-key/">庆祝我们发布第一个WebAuthn依赖方</a>。这一依赖方（Relying Partiy）在Xbox，Skype和Outlook.com等基础上都实现了标准化的无密码身份验证。但是什么是这次实现中难点的真实部分？他们又是怎么适配的？请继续阅读，了解W3C WebAuthn是如何与FIDO2 CATP2规范进行交互的。我们将从行业标准的角度出发，并且在最后我们将总结微软是如何让他们生效的。为了理解FIDO2认证是如何工作的，你需要了解两个不同标准体系中的两个规范相关的知识。<a target="_blank" rel="noopener" href="https://www.w3.org/TR/webauthn/">Web身份认证（WebAuthn）</a>的规范在W3C（浏览器支持）查阅，此外，<a target="_blank" rel="noopener" href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html">Client-to-Authenticator（CTAP2）</a>的规范可以参见<a target="_blank" rel="noopener" href="https://fidoalliance.org/">FIDO Alliance</a>（一个从事硬件和平台相关的人都加入进来，为了解决在线快速认证的问题）。</p>
+<span id="more"></span>
+
+<h1 id="整体情况"><a href="#整体情况" class="headerlink" title="整体情况"></a>整体情况</h1><p>CTAP2和WebAuthn定义了一个抽象层，这个抽象层可以为强认证凭据构建一个生态系统。运行给定的“客户端设备”上的任何可交互客户端都可以使用一个标准化模式与任何可交互的身份验证设备进行交互——这也许意味着平台认证设备（Platform Authenticator）可以被内置在客户端设备或者漫游认证设备（Roaming Authenticator）中，而这些设备也可以通过USB、BLE或者NFC方式连接到客户端设备。在用户必须通过使用“用户手势（User Gesture）”这一行为来同意某一操作的条件下，验证设备就可以安全地创建并本地存储强加密密钥。一旦这些客户端限定的密钥被创建，那么就可以请求认证（attestation）并将其发送给客户端以进行注册和认证（authentication）。另一方面，用户手势则由私钥执行的签名类型进行映射。</p>
+<p>我们绘制了一个关于CTAP和WebAuthn作用机制的图（如下图所示）。浅蓝色虚线代表了面向客户端的平台API的方式是一个执行选择。<br><img src="/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/FIDO2-Overview.png" alt="CTAP and WebAuthn"></p>
+<p>关于WebAuthn/CTAP2结合作用的几个部分的介绍：</p>
+<h2 id="依赖方和客户端（Relying-Parties-amp-Clients）"><a href="#依赖方和客户端（Relying-Parties-amp-Clients）" class="headerlink" title="依赖方和客户端（Relying Parties &amp; Clients）"></a>依赖方和客户端（Relying Parties &amp; Clients）</h2><p>依赖方是那些有意使用强凭据的Web或者原生应用。在原生情况下，运行在客户端设备上的依赖方也能够通过WebAuthn客户端进行直接的WebAuhtn调用。在Web环境下，有意使用凭据的实体是不能直接与WebAuthn API进行交互的，因此必须借助浏览器作为代理来进行交互。需要注意的是：不要将FIDO依赖方和联合依赖方（Federated Relying Parties）混淆，上图中并没有单点登录（Single Sign-On）。</p>
+<h2 id="客户端设备（Client-Device）"><a href="#客户端设备（Client-Device）" class="headerlink" title="客户端设备（Client Device）"></a>客户端设备（Client Device）</h2><p>客户端设备是托管给拥有强认证的硬件设备，比如笔记本电脑和手机。</p>
+<h2 id="平台认证器（Platform-Authenticator）"><a href="#平台认证器（Platform-Authenticator）" class="headerlink" title="平台认证器（Platform Authenticator）"></a>平台认证器（Platform Authenticator）</h2><p>平台认证器通常是依托于客户端设备的，并且不能通过跨平台传输协议（如USB，NFC和BLE）来进行访问。常见的平台认证器包括笔记本电脑上的指纹读取和智能手机前置摄像头的面部识别。</p>
+<h2 id="漫游认证器（Roaming-Authenticator）"><a href="#漫游认证器（Roaming-Authenticator）" class="headerlink" title="漫游认证器（Roaming Authenticator）"></a>漫游认证器（Roaming Authenticator）</h2><p>漫游认证器可以连接到多个客户端设备，但是必须通过支持的传输协议进行交互。常见的漫游认证器包括USB安全密钥，支持BLE的智能手机APP或者支持NFC的感应卡。这些认证器可能需要支持CTAP1，CTAP2或者同时支持。</p>
+<h2 id="CTAP2平台-主机设备（CTAP2-Platform-Host）"><a href="#CTAP2平台-主机设备（CTAP2-Platform-Host）" class="headerlink" title="CTAP2平台/主机设备（CTAP2 Platform/Host）"></a>CTAP2平台/主机设备（CTAP2 Platform/Host）</h2><p>CTAP2平台（在CTAP2规范也被称之为“主机”）是与认证器进行信息沟通的客户端设备的一部分。该平台负责安全地报告请求源以及调用CTAP2 Cbor API。在平台不是CTAP2识别的情况下，客户端本身就难免承载更多的负担，并且内部机理可能有着些微的不同。</p>
+<p>许多依赖方和客户端可以再耽搁客户端设备上与多个认证器进行交互。用户可能就需要安装不同支持WebAuthn的浏览器，当然，也可能是同时拥有内置的指纹识别器，插入式的安全密钥或者支持BLE的手机APP。WebAuthn API能使客户端向认证器提出请求——为了创建一个密钥，也能使客户端获取密钥断言，反馈容量和管理PIN等。</p>
+<h1 id="交互部分"><a href="#交互部分" class="headerlink" title="交互部分"></a>交互部分</h1><p>在使用WebAuthn和CTAP2之前，我们使用的是U2F和CTAP1。U2F是FIDO联盟的一个通用第二级因素规范（universal second factor specification）并且仍有很多认证器在使用CTAP1并管理U2F凭证，WebAuthn旨在与CTAP1认证器进行交互，且U2F仍旧可以使用，只要依赖方没有限定只能使用FIDO2功能。<br>FIDO2认证器已经实现的，WebAuthn依赖方可能需要的功能包括：</p>
+<ul>
+<li>每个依赖方可以存储多个账户的密钥</li>
+<li>客户端PIN</li>
+<li>定位（认证器返回的位置）</li>
+<li>HMAC-secret（可以启用离线方案）</li>
+</ul>
+<p>其他的功能看起来很酷，也许将来会用得到，但是现在并没有被应用：</p>
+<ul>
+<li>业务审批</li>
+<li>用户验证索引（允许服务器去了解本地存储的生物识别是否随着时间而产生了改变）</li>
+<li>用户验证模式（依赖方可以指定可接受的误识（false acceptance）和拒识率（ false rejection rates））</li>
+</ul>
+<p>未来，博客将发文来探讨这些交互项目的好处以及内部工作原理（其中一些以及在规范中提及，但并未进行任何实现）。</p>
+<h2 id="微软的实现方式"><a href="#微软的实现方式" class="headerlink" title="微软的实现方式"></a>微软的实现方式</h2><p>微软的FIDO2实现以及在市场上有很多年了：独立实现的，并且符合标准的软件和服务。截止到Windows 10 2018年10月更新的发布为止，所有的微软组建都更新到使用最新的WebAuthn RC版本——这个版本是一个稳定的版本，在规范进行最终审核之前是不会进行任何规则上的变更的。由于微软是世界上最早部署FIDO2的公司之一，一些受欢迎的非微软组件的组合（combinations）将无法实现交互——但是请给一点时间去解决。请记住，规范的普及并不会一蹴而就。作为一个有责任的企业，我们将努力实现所有组件都能以正确的扩展方式来支持规范。</p>
+<p>下面是微软一些实现的大致布局：<br><img src="/2018/11/22/%E5%BE%AE%E8%BD%AFWindows-hello%E5%92%8C%E6%97%A0%E5%AF%86%E7%A0%81%E7%99%BB%E9%99%86%E6%8A%80%E6%9C%AF%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0/FIDO2-Overview-MSFTversion.png" alt="Current MSFT WebAuthn/CTAP2 Functionality"></p>
+<ul>
+<li><p><strong>微软账户</strong></p>
+<p>  扮演着WebAuthn依赖方的角色。如果您不熟悉微软账户，其实它是Skype，Xbox，Outlook和其他微软产品的登录服务。登录行为使用JavaScript触发Edge与WebAuthn进行通信。微软账户要求认证器拥有下列功能：</p>
+<ul>
+<li><p>密钥需本地存储在认证器，而不是存储在某个服务器上</p>
+</li>
+<li><p>有效的离线方案（例如：HMAC-secret）</p>
+</li>
+<li><p>用户能够在同一个认证器上存储多个用户账户的密钥</p>
+</li>
+<li><p>如有必要，认证器需要使用客户端PIN来解锁TPM</p>
+</li>
+</ul>
+<p>  注意：这是微软现行的要求。如果需要被称为“微软兼容”的官方发布和维护的扩展列表，请参阅<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/microsoft-compatible-security-key">此文档</a>。由于微软账户需要FIDO2 CTAP2认证器特有的功能和扩展，因此所有站点将不接受CTAP1（U2F）凭据。</p>
+</li>
+<li><p><strong>微软Edge浏览器</strong></p>
+<p>  扮演着WebAuthn客户端的角色。Edge可以处理上面提到的WebAuthn/CTAP2特性的UI，并且支持AppID扩展。Edge能够与CTAP1和CTAP2认证器进行交互，这意味着它可以更容易地进行U2F和FIDO2凭据的创建和使用。然而Edge并不使用U2F协议，所以依赖方被要求只能使用WebAuthn规范。很遗憾，目前Edge on Android不支持WebAuthn。</p>
+<ul>
+<li>有关支持WebAuthn和CTAP的Edge权威信息可以在<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/microsoft-edge/dev-guide/windows-integration/web-authentication">开发指南</a>中找到。</li>
+</ul>
+</li>
+<li><p><strong>Windows 10</strong></p>
+<p>  则扮演着平台的角色。它托管着Win32 平台的WebAuthn API，这能够使得客户端可以与Windows Hello进行交互，以便提醒用户与认证器进行交互。有关Windows Hello的工作机制请参阅他们的博文。</p>
+</li>
+<li><p><strong>漫游认证器</strong></p>
+<p>  你也许注意到，以上布局中没有任何“微软”相关的漫游认证器。这是因为我们已经有了很强大的产品生态系统，专门用于强身份验证。并且我们的每个客户（无论是企业还是个人）都对安全性、易用性、分配方式和账户恢复有着不同的需求。如果您需要查看不断更新的FIDO2认证器，您可以参阅这个链接：<a target="_blank" rel="noopener" href="https://fidoalliance.org/certification/fido-certified-products/">https://fidoalliance.org/certification/fido-certified-products/</a>。这个列表涵盖了有关内置认证器，漫游认证器甚至是经认证的芯片，且需要注意的是，这个列表仅仅是初期FIDO2涵盖面。虽然USB安全密钥是现在最常见的漫游认证器，但是未来会发生改变，我们需要关注NFC和BLE领域的大量创新，以及将FIDO2整合到智能手机App，智能卡，健身定位器以及能想到的其他地方。</p>
+</li>
+</ul>
+<p>虽然上图在理论上很有意思，但是它的确是一个真实的可交互布局，并且用户最终可以在更多服务中利用认证器——如果能够实现，微软对这部分的投入将会十分值得。我们这个行业仍在追求普遍的标准化的无密码身份验证，我们也在努力的朝着这一目标实现。</p>
+<h1 id="下一步工作"><a href="#下一步工作" class="headerlink" title="下一步工作"></a>下一步工作</h1><p>这篇概述涵盖了WebAuthn/CTAP2交互的实现，但是这只是冰山一角。在未来的博客文章中我们将深入研究交互本身的一些细节，包括：</p>
+<p>如何存储密钥以及留存密钥的重要性<br>如何使得U2F/CTAP1的正常进行向后兼容<br>一些具体的扩展以及他们的商业价值<br>使用第一因素和第二因素认证WebAuthn的差异<br>开发人员如何成为WebAuthn和CTAP的依赖方<br>安全措施是如何保证它是安全的</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://techcommunity.microsoft.com/t5/identity-standards-blog/all-about-fido2-ctap2-and-webauthn/ba-p/288910">All about FIDO2, CTAP2 and WebAuthn</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Microsoft/" rel="tag"># Microsoft</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/04/08/%E5%BE%AE%E8%BD%AF2017%E5%B9%B4%E9%A2%84%E7%A7%91%E7%94%9F%E8%AE%A1%E5%88%92%E5%9C%A8%E7%BA%BF%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AF%95-%E7%AC%AC2%E9%A2%98-Tree-Restoration/" rel="prev" title="微软2017年预科生计划在线编程笔试 第2题 Tree Restoration">
+      <i class="fa fa-chevron-left"></i> 微软2017年预科生计划在线编程笔试 第2题 Tree Restoration
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/02/17/UX%E4%B8%8D%E6%98%AFUI-%E4%BD%86%E6%98%AFUI%E7%BB%9D%E5%AF%B9%E6%98%AFUX/" rel="next" title="UX不是UI, 但是UI绝对是UX">
+      UX不是UI, 但是UI绝对是UX <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E6%83%85%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">整体情况</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%9D%E8%B5%96%E6%96%B9%E5%92%8C%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%88Relying-Parties-amp-Clients%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">依赖方和客户端（Relying Parties &amp; Clients）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BE%E5%A4%87%EF%BC%88Client-Device%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">客户端设备（Client Device）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B3%E5%8F%B0%E8%AE%A4%E8%AF%81%E5%99%A8%EF%BC%88Platform-Authenticator%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">平台认证器（Platform Authenticator）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%AB%E6%B8%B8%E8%AE%A4%E8%AF%81%E5%99%A8%EF%BC%88Roaming-Authenticator%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">漫游认证器（Roaming Authenticator）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CTAP2%E5%B9%B3%E5%8F%B0-%E4%B8%BB%E6%9C%BA%E8%AE%BE%E5%A4%87%EF%BC%88CTAP2-Platform-Host%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">CTAP2平台&#x2F;主机设备（CTAP2 Platform&#x2F;Host）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">交互部分</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AE%E8%BD%AF%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">微软的实现方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E4%B8%80%E6%AD%A5%E5%B7%A5%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">下一步工作</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="终古WelKin"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">终古WelKin</p>
+  <div class="site-description" itemprop="description">点墨间 云山里 逍遥游</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nolongerwait" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nolongerwait" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">终古WelKin</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
